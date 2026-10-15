@@ -1,0 +1,34 @@
+import os, threading, random
+from flask import Flask
+from datetime import datetime
+import telebot
+
+app = Flask(__name__)
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+bot = telebot.TeleBot(BOT_TOKEN)
+
+@bot.message_handler(commands=['start'])
+def start(m):
+    bot.reply_to(m, "🚀 USD SNIPER BOT Online 24/7\n\n✅ Commands:\n/signal - Get 1M Signal\n/start - Restart")
+
+@bot.message_handler(commands=['signal'])
+def signal(m):
+    pairs = ["EUR/USD OTC","GBP/USD OTC","USD/JPY OTC","EUR/JPY OTC","AUD/USD OTC"]
+    actions = ["🟢 CALL (UP)", "🔴 PUT (DOWN)"]
+    pair = random.choice(pairs)
+    act = random.choice(actions)
+    now = datetime.now().strftime("%H:%M:%S")
+    txt = f"⚡️ 1 MINUTE SNIPER SIGNAL ⚡️\n\n💱 Pair: {pair}\n📈 Direction: {act}\n⏰ Time: {now} GMT+6\n⏳ Expiry: 1 Minute\n\n⚠️ Use proper Money Management"
+    bot.reply_to(m, txt)
+
+@app.route('/')
+def home():
+    return "Bot is Live!"
+
+def run_bot():
+    bot.infinity_polling()
+
+threading.Thread(target=run_bot).start()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
